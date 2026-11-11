@@ -491,7 +491,7 @@ function updateSendbar(){
 
 /* ---------- persistence: planilha do Google (Apps Script) ---------- */
 /* Cole aqui a URL do Apps Script implantado (termina em /exec). */
-const SCRIPT_URL = "";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK2uGhyjGstxwqlTy8TrD1j2A8bubugyOx7k9_LZ8T8O2H6aw1qmLwSJQc7Mm-j7wr/exec";
 let syncMode = "loading";
 let pend = {};
 try { pend = JSON.parse(localStorage.getItem(LS+"-pend") || "{}") || {}; } catch(e) { pend = {}; }
