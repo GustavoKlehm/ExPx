@@ -1,0 +1,14 @@
+# Este repositório é público: só a pasta docs/ (site do GitHub Pages) é enviada.
+/*
+!/docs/
+!/.gitignore
+!/README.md
+
+# Regras antigas (continuam valendo para quem usar a pasta inteira)
+node_modules/
+.env
+.mcp.json
+*.tmp
+squads/*/state.json
+squads/*/state.json.tmp
+squads/*/output/

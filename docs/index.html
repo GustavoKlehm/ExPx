@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Aprovação Glamour Beauty</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: welcome + progress, two month grids colored by approval status, then one card per video with approve / request-change controls */
+:root{
+  --bg:#faf5f6; --surface:#ffffff; --ink:#2b1a22; --muted:#7a6670; --line:#ead9df; --soft:#f3ecef;
+  --accent:#a8325f; --accent-soft:#f8dde8;
+  --ok:#1f7a4d; --ok-soft:#dcf2e6; --fix:#a3540a; --fix-soft:#fdebd6; --wait:#7a6670; --wait-soft:#f1ebee;
+  --display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif; --body:"Inter","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#160e12; --surface:#211519; --ink:#f4e8ed; --muted:#b39faa; --line:#3a2730; --soft:#2a1d23;
+  --accent:#ff86b4; --accent-soft:#45192d;
+  --ok:#6fd6a0; --ok-soft:#163626; --fix:#f5b169; --fix-soft:#3d2610; --wait:#b39faa; --wait-soft:#2a1d23; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#160e12; --surface:#211519; --ink:#f4e8ed; --muted:#b39faa; --line:#3a2730; --soft:#2a1d23;
+  --accent:#ff86b4; --accent-soft:#45192d;
+  --ok:#6fd6a0; --ok-soft:#163626; --fix:#f5b169; --fix-soft:#3d2610; --wait:#b39faa; --wait-soft:#2a1d23; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 72px}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(30px,5.5vw,46px);line-height:1.03;margin:6px 0 0;text-wrap:balance}
+.lead{color:var(--muted);max-width:62ch;margin:12px 0 0;font-size:15.5px}
+.steps{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;padding:0;list-style:none}
+.steps li{font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.steps b{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.progress{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}
+.progress div{font-size:13px;color:var(--muted)}
+.progress b{display:block;font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.progress .ok b{color:var(--ok)} .progress .fix b{color:var(--fix)} .progress .wait b{color:var(--wait)}
+.bar{height:8px;border-radius:999px;background:var(--wait-soft);overflow:hidden;display:flex}
+.bar span{display:block;height:100%}
+.bar .ok{background:var(--ok)} .bar .fix{background:var(--fix)}
+.sync{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.sync .dot{width:9px;height:9px;border-radius:50%;background:var(--wait);margin-top:5px;flex:0 0 auto}
+.sync.on .dot{background:var(--ok)} .sync.local .dot{background:var(--fix)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;font-weight:600;font-size:14px}
+button:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.copied{font-size:13px;color:var(--ok);font-weight:600}
+.months{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:18px}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.month h2{font-family:var(--display);font-size:20px;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{font-size:10.5px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.05em}
+.day{min-height:62px;border-radius:8px;padding:5px;font-size:11px;display:flex;flex-direction:column;gap:3px;min-width:0;color:var(--muted)}
+.day .d{font-weight:600;font-variant-numeric:tabular-nums}
+.day.post{text-decoration:none;color:var(--ink);background:var(--wait-soft);border-left:3px solid var(--wait)}
+.day.post.ok{background:var(--ok-soft);border-left-color:var(--ok)}
+.day.post.fix{background:var(--fix-soft);border-left-color:var(--fix)}
+.day.post .t{font-weight:600;line-height:1.2;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.day.post:hover{outline:2px solid var(--ink);outline-offset:-2px}
+.day.empty{visibility:hidden}
+@media (max-width:520px){.day{min-height:44px}.day.post .t{display:none}}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.list{display:flex;flex-direction:column;gap:14px}
+.list > h2{font-family:var(--display);font-size:24px;margin:6px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--wait);border-radius:14px;padding:18px;display:grid;grid-template-columns:84px minmax(0,1fr);gap:16px;scroll-margin-top:16px}
+.card.ok{border-left-color:var(--ok)} .card.fix{border-left-color:var(--fix)}
+.date{display:flex;flex-direction:column;gap:2px}
+.date .n{font-family:var(--display);font-weight:800;font-size:32px;line-height:1;font-variant-numeric:tabular-nums}
+.date .w{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.body{display:flex;flex-direction:column;gap:10px;min-width:0}
+.top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.card h3{font-family:var(--display);font-size:19px;margin:0;text-wrap:balance}
+.chip{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+.chip.wait{background:var(--wait-soft);color:var(--wait)} .chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.fix{background:var(--fix-soft);color:var(--fix)}
+.chip.kind{background:var(--soft);color:var(--muted);font-weight:600}
+dl{display:grid;grid-template-columns:118px minmax(0,1fr);gap:6px 12px;margin:0;font-size:14.5px}
+dt{color:var(--muted);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
+dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.screen{font-weight:700}
+.rot{background:var(--soft);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.rot p{margin:0;line-height:1.55}
+.rot .cue{color:var(--muted);font-size:12.5px;font-style:italic}
+.ref a{color:var(--accent);font-weight:600;text-decoration:none}
+.ref a:hover{text-decoration:underline}
+.q{font-size:13.5px;background:var(--accent-soft);color:var(--ink);border-radius:8px;padding:7px 11px}
+.decide{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btns button[aria-pressed="true"].a{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+.btns button[aria-pressed="true"].r{background:var(--fix);border-color:var(--fix);color:var(--bg)}
+textarea{font:inherit;font-size:14.5px;width:100%;box-sizing:border-box;min-height:86px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:10px 12px;resize:vertical}
+label.small{font-size:13px;font-weight:600}
+.saved{font-size:12.5px;color:var(--muted)}
+@media (max-width:560px){.card{grid-template-columns:1fr;gap:10px}.date{flex-direction:row;align-items:baseline;gap:8px}dl{grid-template-columns:1fr}}
+footer{font-size:13px;color:var(--muted)}
+.extras{display:flex;flex-direction:column;gap:14px}
+.extras h2{font-family:var(--display);font-size:24px;margin:0}
+.xgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;align-items:start}
+.xgrid .panel{gap:8px}
+.xgrid h3{font-family:var(--display);font-size:18px;margin:0}
+.hint{margin:0 0 4px;font-size:13px;color:var(--muted)}
+input{font:inherit;font-size:14.5px;width:100%;box-sizing:border-box;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:9px 12px}
+input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.xgrid textarea{min-height:64px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.xgrid button.primary{align-self:flex-start;margin-top:4px}
+.xlist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.xlist:empty{display:none}
+.xlist li{background:var(--soft);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.xlist li div{min-width:0;overflow-wrap:anywhere;font-size:14px}
+.xlist li b{display:block}
+.xlist li span{color:var(--muted);font-size:13px}
+.xlist li button{padding:4px 10px;font-size:12.5px;font-weight:600;flex:0 0 auto}
+.ana{border:2px solid var(--accent)}
+.ana h2{font-family:var(--display);font-size:22px;margin:4px 0 0}
+.tablewrap{overflow-x:auto}
+.ana table{border-collapse:collapse;width:100%;min-width:620px;font-size:14px}
+.ana th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.ana td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+.ana td:first-child,.ana td:last-child{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+.sync.warn{background:var(--fix-soft);color:var(--ink);border-radius:10px;padding:10px 12px}
+.sync.warn .dot{background:var(--fix)}
+.pick{display:flex;flex-direction:column;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.sug{padding:5px 11px;font-size:13px;border-radius:999px;background:var(--surface)}
+.sug[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Glamour Beauty · @glamour.dv</span>
+    <h1>Planejamento de Reels de novembro a janeiro</h1>
+    <p class="lead">Aqui estão os 20 vídeos que preparei para o Instagram da Glamour: 14 entre 16/11 e 30/12 e mais 6 em janeiro. Os posts saem às segundas e quartas, às 19h. Em cada vídeo você encontra a ideia, o roteiro (quando tem fala), o texto que aparece na tela, a legenda e o vídeo de referência.</p>
+    <ol class="steps">
+      <li><b>1.</b> Veja o calendário do mês</li>
+      <li><b>2.</b> Leia cada vídeo e abra a referência</li>
+      <li><b>3.</b> Toque em <b>Aprovar</b> ou <b>Pedir ajuste</b> e escreva o que mudar</li>
+    </ol>
+  </header>
+
+  <section class="panel" aria-label="Andamento da aprovação">
+    <div class="progress">
+      <div class="ok"><b id="cOk">0</b>aprovados</div>
+      <div class="fix"><b id="cFix">0</b>com ajuste</div>
+      <div class="wait"><b id="cWait">20</b>faltam avaliar</div>
+    </div>
+    <div class="bar" aria-hidden="true"><span class="ok" id="bOk" style="width:0"></span><span class="fix" id="bFix" style="width:0"></span></div>
+    <div class="sync" id="sync"><span class="dot"></span><span id="syncText">Carregando suas respostas…</span></div>
+  </section>
+
+  <section class="panel ana" id="anaPanel" hidden aria-label="Painel da Ana">
+    <div>
+      <span class="eyebrow">Resumo</span>
+      <h2>Respostas da aprovação</h2>
+      <p class="hint" id="anaInfo"></p>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Data</th><th>Vídeo</th><th>Resposta</th><th>O que ela escreveu</th><th>Quando</th></tr></thead>
+      <tbody id="anaRows"></tbody>
+    </table></div>
+  </section>
+
+  <section aria-label="Calendário">
+    <div class="months" id="months"></div>
+    <div class="legend" style="margin-top:10px">
+      <span><i style="background:var(--ok)"></i>aprovado</span>
+      <span><i style="background:var(--fix)"></i>pediu ajuste</span>
+      <span><i style="background:var(--wait)"></i>falta avaliar</span>
+    </div>
+  </section>
+
+  <section class="extras" aria-label="Novidades do salão">
+    <div>
+      <h2>Tem novidade na Glamour?</h2>
+      <p class="lead" style="margin-top:6px">Conte aqui o que vai acontecer em novembro e dezembro. Eu encaixo nos conteúdos e programo as gravações.</p>
+    </div>
+    <div class="xgrid">
+      <form class="panel" id="promoForm" autocomplete="off">
+        <h3>🎉 Promoção ou evento</h3>
+        <p class="hint">Uma promoção, um combo, um evento no salão, um sorteio, uma data especial…</p>
+        <label class="small" for="pTitulo">O que vai acontecer?</label>
+        <input id="pTitulo" required placeholder="Ex.: Combo unha + sobrancelha com 15% off">
+        <label class="small" for="pQuando">Quando?</label>
+        <input id="pQuando" placeholder="Ex.: de 01/12 a 15/12">
+        <label class="small" for="pDetalhes">Detalhes (opcional)</label>
+        <textarea id="pDetalhes" placeholder="Valores, regras, para quem é…"></textarea>
+        <button class="primary" type="submit">Adicionar</button>
+        <ul class="xlist" id="promoList"></ul>
+      </form>
+      <form class="panel" id="prodForm" autocomplete="off">
+        <h3>👰 Produção especial para gravar</h3>
+        <p class="hint">Uma noiva, debutante, formanda, madrinha… Com o dia e a hora, a Ana programa a gravação.</p>
+        <label class="small" for="rTipo">Que produção?</label>
+        <input id="rTipo" required placeholder="Ex.: Noiva: cabelo e maquiagem">
+        <div class="two">
+          <div><label class="small" for="rData">Dia</label><input id="rData" type="date" required min="2026-11-10" max="2027-01-31"></div>
+          <div><label class="small" for="rHora">Hora</label><input id="rHora" type="time" required></div>
+        </div>
+        <label class="small" for="rObs">Observações (opcional)</label>
+        <textarea id="rObs" placeholder="A cliente topa ser filmada? Quanto tempo leva? Algo importante…"></textarea>
+        <button class="primary" type="submit">Adicionar</button>
+        <ul class="xlist" id="prodList"></ul>
+      </form>
+    </div>
+  </section>
+
+  <section class="list" id="list"><h2>Os vídeos, um por um</h2></section>
+
+  <footer>Planejamento feito por Ana Julia Videomaker · @anajulia.videomaker_</footer>
+</div>
+
+<script>
+const IG = id => "https://www.instagram.com/reel/" + id + "/";
+const V = [
+ {d:"2026-11-16",t:"Apresentação das colaboradoras",id:"DdHmHKbt-t2",
+  ideia:"Cada profissional aparece no seu posto de trabalho, com o nome e a especialidade dela na tela, no mesmo estilo do vídeo de referência.",
+  tela:"Quem cuida de você na Glamour 🤍",
+  leg:"Por trás de cada resultado, existe uma equipe. E por trás de uma equipe, existem pessoas que fazem tudo acontecer. ❤️\n\nAcreditamos que um salão vai muito além dos serviços que oferece. Ele é feito de pessoas, de dedicação, de confiança e do cuidado colocado em cada detalhe.\n\nCada profissional tem sua história, seu talento e sua importância. Mas compartilhamos algo em comum: o compromisso de fazer sempre o nosso melhor e proporcionar experiências que vão além da beleza.\n\nÉ essa equipe que recebe, acolhe, cuida e transforma cada visita em um momento especial.\n\nE temos muito orgulho de construir essa história juntos. ✨",
+  audio:"Como na referência"},
+ {d:"2026-11-18",t:"Unha com a luz apagando",id:"Dew3mrwsNHJ",
+  ideia:"Câmera parada. A manicure calça a luva e a luz apaga. Ela arruma a broca e a luz apaga. Pega o esmalte e a luz apaga. Na última cena, a unha pronta, com a mão girando.",
+  tela:"Do começo ao fim ✨",
+  leg:"Cada detalhe é pensado para garantir unhas lindas, bem cuidadas e com a durabilidade que você merece! 💅✨\n\nA agenda da Glamour está aberta. Garanta seu horário e venha cuidar de você!\n\n📲 Agendamentos pelo WhatsApp.",
+  audio:"Música com batida marcada, com a luz apagando no ritmo"},
+ {d:"2027-01-04",t:"Ambiente",id:"DfSze6uxHoz",
+  ideia:"Tour lento e “aesthetic” pelo salão, sem fala: a porta, a luz, a decoração, os esmaltes, a cadeira, um café na bancada e o salão inteiro.",
+  tela:"Bem-vinda à Glamour 🤎",
+  leg:"Mais do que um salão, um espaço pensado para acolher você, valorizar sua beleza e transformar seu momento de autocuidado em uma experiência especial. 🤎\n\nEstamos em Dois Vizinhos e será um prazer receber você!\n\n📲 Agende pelo WhatsApp.",
+  audio:"Música calma"},
+ {d:"2026-11-23",t:"Detalhes da aplicação dos cílios",id:"DdR08WkxfzF",
+  ideia:"Close bem de perto, com cortes rápidos: a pinça separando o fio, o fio na cola, a aplicação fio a fio e a escovinha. No final, a cliente abre o olho.",
+  tela:"Cada fio, um por um ✨",
+  leg:"Um olhar que ganha destaque sem perder a delicadeza. ✨ O cuidado em cada fio faz toda a diferença no resultado, trazendo leveza e realçando a beleza do seu olhar. 🤍\n\nQuer experimentar essa transformação? Agende seu horário pelo WhatsApp.",
+  audio:"Música em alta, com corte a cada batida"},
+ {d:"2027-01-06",t:"5 motivos para fazer as unhas na Glamour",id:"DcoopoVvd-T",
+  ideia:"A profissional fala os 5 motivos. Em cada motivo entra uma cena mostrando ele acontecendo.",
+  rot:["[olhando para a câmera, sorrindo] 5 motivos para você fazer suas unhas aqui na Glamour! 💅",
+       "[cena: unha pronta girando] 1. Unha que dura até 3 semanas: para você aproveitar suas unhas lindas por muito mais tempo, sem abrir mão da qualidade.",
+       "[cena: material saindo da esterilização] 2. Material esterilizado pra cada cliente: todo cuidado é pouco quando o assunto é sua segurança e bem-estar.",
+       "[cena: cafezinho sendo servido] 3. Cafezinho enquanto você faz: porque esse momento também é para relaxar, conversar e aproveitar uma pausa na rotina.",
+       "[cena: esmaltes e efeitos] 4. As cores e efeitos do momento: uma variedade de opções para você escolher, experimentar tendências e encontrar seu estilo.",
+       "[cena: manicure trabalhando com calma] 5. Atendimento sem pressa: cada cliente tem seu tempo e merece toda a atenção e cuidado em cada detalhe.",
+       "[olhando para a câmera] Gostou? Então venha conhecer a Glamour e aproveite esse momento para cuidar de você! 🤎 Agende seu horário pelo WhatsApp."],
+  tela:"O número e o nome de cada motivo aparecem na tela junto com a fala",
+  leg:"Às vezes, são os pequenos detalhes que fazem toda a diferença na hora de escolher onde cuidar de você. 🤎\n\nNa Glamour, cada atendimento é pensado para que você se sinta bem do início ao fim, com qualidade, cuidado e aquele carinho que torna tudo ainda mais especial.\n\nAgora queremos receber você por aqui! ✨\n\n📲 Entre em contato pelo WhatsApp e agende seu horário.",
+  audio:"Música animada, baixinha por baixo da fala",
+  q:"Esses 5 motivos combinam com a Glamour? Se quiser trocar algum, peça ajuste e escreva qual."},
+ {d:"2026-11-25",t:"Fim de ano: já agendou seu horário?",id:"DfVbJUmIvWr",
+  ideia:"Um teaser em clima de convite, como um “save the date”: trechos bonitos e em câmera lenta do salão e dos procedimentos. Termina com uma profissional olhando para a câmera.",
+  tela:"O fim de ano está chegando… já agendou o seu horário? ✨",
+  leg:"Tem recado que não pode ficar para depois… 👀✨\n\nDezembro está chegando e a agenda da Glamour já está aberta! Não deixe para a última hora. Garanta seu horário e aproveite as comemorações com tudo em dia. 💅🤎\n\n📲 Agendamentos pelo WhatsApp.",
+  audio:"Música elegante"},
+ {d:"2026-11-30",t:"Dezembro: estamos prontas",id:"DRDUCxyknJQ",
+  ideia:"A equipe se arruma e o salão ganha a decoração de fim de ano. No final, todas olham juntas para a câmera.",
+  tela:"Dezembro, estamos prontas ✨",
+  leg:"Dezembro chegou trazendo aquele clima especial de fim de ano! ✨🎄\n\nÉ tempo de celebrar, reencontrar pessoas queridas e também reservar um tempinho para cuidar de você. Por aqui, já estamos prontas para receber você com todo carinho! 🤎\n\n📲 Nossa agenda está aberta. Entre em contato pelo WhatsApp e garanta seu horário!",
+  audio:"Música animada de fim de ano"},
+ {d:"2026-12-02",t:"Cuidado com o cabelo",id:"De4hurNp1Rl",
+  ideia:"A cabeleireira fala para a câmera, com cenas do processo entre as frases: a avaliação do fio, o lavatório, o tratamento, o secador e, no final, o cabelo solto e brilhando.",
+  rot:["O cabelo é muito mais do que estética. Ele também faz parte da nossa identidade, expressão e autoestima.",
+       "E se você está esperando o momento certo para cuidar de você e renovar seu visual, esse momento pode ser agora!",
+       "[cena: avaliação do fio] Por aqui, cada transformação começa com uma avaliação cuidadosa, respeitando as características do seu cabelo, a saúde dos fios e, principalmente, aquilo que você deseja.",
+       "[cenas: lavatório, tratamento, secador] Tudo é pensado com técnica, personalização e carinho em cada detalhe.",
+       "[resultado + olhando para a câmera] Clique no WhatsApp, converse com nossa equipe e agende seu horário. Será um prazer receber você!"],
+  tela:"Agenda de fim de ano aberta ✨",
+  leg:"Um cabelo bem cuidado faz toda a diferença na hora de se sentir ainda mais bonita! ✨\n\nQue tal aproveitar esse fim de ano para renovar o visual e se preparar para as comemorações? Estamos esperando você na Glamour! 🤎\n\n📲 Agende seu horário pelo WhatsApp.",
+  audio:"Música suave, baixinha por baixo da fala"},
+ {d:"2026-12-09",t:"Detalhes de um procedimento estético",id:"DadF1wTD6uU",
+  ideia:"Os detalhes de um procedimento estético em close, no ritmo da trend: o preparo, os produtos, o aparelho ou as mãos trabalhando e o resultado. Você escolhe abaixo qual procedimento quer mostrar.",
+  tela:"Sem texto: só os detalhes no ritmo da música",
+  leg:"Os detalhes que fazem a diferença no cuidado com você 🤍 Agende pelo WhatsApp.",
+  audio:"A música da trend do vídeo de referência",
+  pick:{label:"Qual procedimento estético você quer mostrar nesse vídeo?",
+        sug:["Limpeza de pele","Depilação a laser","Peeling","Microagulhamento","Drenagem / massagem"]}},
+ {d:"2026-12-07",t:"O papel grudado no sapato",id:"DfA4aJ0SQu9",
+  ideia:"Ela vem andando de cabelo solto, pega numa mecha e faz cara de “hum”. Pisa num papel, que gruda no sapato; ela desgruda, lê e vira para a câmera. Corte para a Glamour: papel alumínio, pincel, lavatório e secador. No final, ela sai andando no sol, balançando o cabelo iluminado em câmera lenta.",
+  tela:"No papel: “O universo mandou avisar: tá na hora de iluminar esse cabelo pro verão ☀️”",
+  leg:"Se o verão está dando sinais, que tal aproveitar para renovar o visual também? 😂☀️\n\nUm cabelo iluminado, cheio de vida e pronto para acompanhar você nos dias mais ensolarados!\n\n🤎 Agende seu horário na Glamour pelo WhatsApp.",
+  audio:"“Nicole Kidman”, ADÉLA"},
+ {d:"2027-01-11",t:"5 coisas para cuidar do cabelo",id:"DcJ-KwWB7Vc",
+  ideia:"Cenas da cabeleireira cuidando do cabelo da cliente (lavatório, tratamento, escova, finalização). Por cima, o texto aparece aos poucos.",
+  tela:"5 coisas para cuidar do seu cabelo: 1. Entre em contato comigo. 2, 3, 4 e 5: as outras eu cuido pra você 😉",
+  leg:"Às vezes, tudo o que falta para mudar o visual é tomar a iniciativa. ✨\n\nSeja para renovar, transformar ou simplesmente dar aquele cuidado especial aos fios, estamos prontas para cuidar de você!\n\n🤎 Dê o primeiro passo e agende seu horário pelo WhatsApp.",
+  audio:"“This Will Be (An Everlasting Love)”, Natalie Cole"},
+ {d:"2027-01-13",t:"Resultado, produtos, o salão e quem fez",id:"DbY96Y5BxsZ",
+  ideia:"Quatro blocos curtos, cada um com o título na tela: o resultado do serviço, os produtos usados, o ambiente e a profissional sorrindo, com o nome dela.",
+  tela:"Resultado · Produtos · O salão · Quem fez",
+  leg:"Um resultado bonito começa muito antes de ficar pronto. Está na atenção aos detalhes, na escolha de cada técnica e no cuidado em cada etapa do atendimento. 🤍\n\nNa Glamour, cada detalhe importa para que você saia daqui ainda mais feliz com o resultado!\n\n📲 Estamos esperando você! Agende seu horário pelo WhatsApp.",
+  audio:"“Planetarium”, Justin Hurwitz (La La Land)"},
+ {d:"2026-12-14",t:"Às vezes você só precisa de um café",id:"DZpk_cHRBz1",
+  ideia:"O café sendo passado no salão e servido para a cliente durante o atendimento, com ela relaxando.",
+  tela:"Às vezes você só precisa de um café… e de uma unha nova ☕💅",
+  leg:"Porque cuidar de você também está nos pequenos momentos: uma boa conversa, um cafezinho quentinho e aquele tempinho para esquecer a correria do dia. ☕🤎\n\nNa Glamour, queremos que você se sinta bem desde a chegada até o resultado final!\n\n📲 Venha viver esse momento com a gente. Agende pelo WhatsApp!",
+  audio:"Música calma"},
+ {d:"2026-12-16",t:"Explicando a terapia capilar",id:"Ddr0Ni7hmbK",
+  ideia:"Um passo a passo da terapia capilar: a profissional explica cada etapa enquanto faz.",
+  rot:["Você sabe o que acontece numa terapia capilar? Vem que eu te mostro.",
+       "[cena: avaliação] Primeiro, eu avalio o seu couro cabeludo, porque é ali que o fio nasce. É nessa hora que eu vejo se tem oleosidade, caspa, queda ou sensibilidade.",
+       "[cena: lavatório] Depois vem a limpeza profunda, que tira os resíduos de produto e a oleosidade acumulada.",
+       "[cena: aplicação] Aí entra o tratamento, escolhido de acordo com o que o seu couro cabeludo precisa.",
+       "[cena: massagem] E pra finalizar, uma massagem que ativa a circulação. Essa é a parte que todo mundo ama.",
+       "[olhando para a câmera] Cada terapia é pensada pra você. Quer saber se é pra você? Chama a gente no WhatsApp!"],
+  tela:"O que acontece numa terapia capilar",
+  leg:"Cuidar dos cabelos vai muito além do resultado que a gente vê no espelho. Cada etapa tem seu propósito e contribui para a saúde do couro cabeludo e dos fios. 🌿\n\nNa Glamour, o cuidado começa entendendo o que seu cabelo precisa!\n\n🤎 Quer saber qual tratamento combina com você? Entre em contato pelo WhatsApp.",
+  audio:"Fala da profissional, com música baixa",
+  q:"As etapas da terapia capilar estão como vocês fazem? Se for diferente, peça ajuste e conte como é."},
+ {d:"2027-01-18",t:"Hora de marcar sua manutenção",id:"DehoZFgMi5P",
+  ideia:"A profissional dança ou faz pose apontando para a câmera, e o texto vai aparecendo, no estilo meme.",
+  tela:"Está na hora de agendar a sua próxima manutenção 😉",
+  leg:"Se você estava esperando um sinal para marcar sua manutenção, considere esse o seu! 😂💅\n\nNão deixe para a última hora. Entre em contato pelo WhatsApp e garanta seu próximo horário na Glamour! 🤎",
+  audio:"“Drop It Like It's Hot x Stayin' Alive (Altégo Mix)”"},
+ {d:"2026-12-21",t:"Um momento de cuidado",id:"Dbvii5Es87f",
+  ideia:"Vídeo calmo, em câmera lenta: o lavatório, a massagem no couro cabeludo, a hidratação e as mãos sendo cuidadas.",
+  tela:"Dezembro corre. Reserve um momento só seu 🤍",
+  leg:"Entre tantos compromissos, preparativos e a correria de dezembro, também é importante encontrar um tempinho para você. 🤍\n\nAqui na Glamour, queremos que cada visita seja uma oportunidade de desacelerar, se cuidar e aproveitar o momento.\n\n📲 Reserve seu horário pelo WhatsApp. ✨",
+  audio:"Som ambiente ou música suave"},
+ {d:"2027-01-20",t:"A beleza vem de dentro… do salão",id:"DWGx4hRDTKN",
+  ideia:"A frase começa séria, “a beleza vem de dentro…”, e vira piada com “…do salão 😂”, mostrando clientes saindo prontas.",
+  tela:"A beleza vem de dentro… do salão 😂",
+  leg:"E por aqui não falta motivo para gostar desse momento: tem cafezinho, conversa boa, cuidado em cada detalhe e aquele resultado que faz você sair ainda mais feliz!\n\n✨ Já garantiu seu horário? Agende pelo WhatsApp.",
+  audio:"“GORGEOUS”, Olivia Knox"},
+ {d:"2026-12-23",t:"O que pesa mais?",id:"DdUkvddzxTw",
+  ideia:"Em clima de novela, a profissional segura um saco de 1 kg de algodão numa mão e o celular com a agenda na outra, e faz a pergunta bem dramática.",
+  rot:["[luz baixa, música de suspense, olhando fixo para a câmera, bem séria; pausa] O que pesa mais?",
+       "[levanta devagar o saco de algodão] Um quilo de algodão…",
+       "[larga o algodão; a música cresce; zoom lento no rosto] …ou o peso de saber que você está adiando aquele momento de autocuidado, deixando para depois a transformação que tanto deseja, enquanto sua autoestima espera por um tempinho de atenção?",
+       "[mão no peito, olhar para longe; zoom rápido] E o pior: saber que você poderia estar vivendo essa experiência no melhor salão de Dois Vizinhos, mas continua adiando seu agendamento!",
+       "[silêncio de 2 segundos; ela desfaz a cara dramática e ri] Não carregue esse peso sozinha! 😂",
+       "[apontando para a câmera, animada] Chama a gente no WhatsApp e agende seu horário. Você merece esse momento!"],
+  tela:"A fala aparece legendada na tela",
+  leg:"Tem pesos que a gente não precisa carregar… e o de deixar o autocuidado para depois é um deles! 😂💅\n\nO fim do ano está chegando e os últimos horários estão sendo preenchidos. Não deixe para depois aquele momento que você merece!\n\n🤎 Chame a Glamour no WhatsApp e garanta seu horário!",
+  audio:"Trilha de suspense, tipo novela, que cresce até a pergunta e corta no silêncio"},
+ {d:"2026-12-28",t:"Nossa cliente favorita",id:"DV1qvoRCY34",
+  ideia:"Montagem rápida com várias clientes sorrindo, mostrando o resultado e saindo do salão. No final, a pergunta é respondida virando a câmera para quem está assistindo.",
+  tela:"Quem é a nossa cliente favorita? 🤍 … (no final) É você 🤍",
+  leg:"Mais do que cuidar da beleza, queremos que cada cliente se sinta acolhida, valorizada e especial em cada visita. 🤍\n\nAqui na Glamour, cada atendimento é único, porque sabemos que por trás de cada horário existe alguém que merece atenção, carinho e cuidado.\n\nE será um prazer receber você também! ✨\n\n📲 Agende seu horário pelo WhatsApp.",
+  audio:"Música leve e alegre"},
+ {d:"2026-12-30",t:"Agradecimento da dona do salão",id:"",
+  ideia:"A dona da Glamour fala direto para a câmera, sentada no salão, num tom de conversa. Entre as frases entram cenas das clientes ao longo do ano.",
+  rot:["[sentada no salão, olhando para a câmera, sorrindo] Antes desse ano acabar, eu queria falar com você.",
+       "Sim, com você que sentou na nossa cadeira em algum momento de 2026.",
+       "[cenas das clientes] Cada horário marcado, cada conversa, cada café, cada risada aqui dentro fez parte da nossa história esse ano.",
+       "[de volta para ela] Vocês confiaram na gente pra cuidar das suas unhas, do seu cabelo, do seu olhar… e isso não é pouca coisa.",
+       "É por vocês que a gente acorda todo dia com vontade de fazer o nosso melhor.",
+       "[cena: a equipe junta] Em nome de toda a equipe Glamour: muito obrigada.",
+       "[emocionada e sorrindo] Que 2027 venha cheio de coisa boa pra você. E a gente vai estar aqui, esperando você, como sempre.",
+       "[todas juntas acenando] Feliz Ano Novo! 🥂"],
+  tela:"Obrigada por 2026 🤍",
+  leg:"Um ano é feito de encontros, histórias e momentos que ficam na memória. E cada cliente que passou pela Glamour em 2026 fez parte de tudo isso! 🤍\n\nObrigada por cada visita, cada conversa, cada sorriso e, principalmente, pela confiança no nosso trabalho.\n\nQue 2027 venha com ainda mais momentos especiais para compartilharmos! 🥂✨\n\nCom carinho, equipe Glamour.",
+  audio:"Música suave e emotiva, baixinha por baixo da fala"}
+];
+V.sort((a,b)=>a.d.localeCompare(b.d));
+V.forEach(v=>v.key="r-"+(v.id||"agradecimento"));
+
+const W = ["dom","seg","ter","qua","qui","sex","sáb"];
+const pad = x => String(x).padStart(2,"0");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = d => { const dt=new Date(d+"T12:00:00"); return pad(dt.getDate())+"/"+pad(dt.getMonth()+1); };
+const LS = "glamour-aprovacao-2026-11-12";
+
+/* state: key -> {status:"aprovado"|"ajuste"|"", comentario:"", em:ISO} */
+let state = {};
+try { state = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch(e) { state = {}; }
+/* extras: promoções/eventos e produções especiais, keyed by id */
+let promos = {}, prods = {};
+try { const x = JSON.parse(localStorage.getItem(LS+"-extras") || "{}"); promos = x.promos || {}; prods = x.prods || {}; } catch(e) {}
+const saveLocal = () => { try { localStorage.setItem(LS, JSON.stringify(state)); localStorage.setItem(LS+"-extras", JSON.stringify({promos, prods})); } catch(e) {} };
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const fmtBR = iso => iso ? iso.split("-").reverse().join("/") : "";
+const cls = k => state[k]?.status==="aprovado" ? "ok" : state[k]?.status==="ajuste" ? "fix" : "wait";
+
+/* ---------- calendar ---------- */
+function renderMonths(){
+  const el = document.getElementById("months"); el.innerHTML = "";
+  for (const M of [{y:2026,m:10,name:"Novembro"},{y:2026,m:11,name:"Dezembro"},{y:2027,m:0,name:"Janeiro"}]){
+    const first = new Date(M.y,M.m,1).getDay(), days = new Date(M.y,M.m+1,0).getDate();
+    let h = `<div class="month"><h2>${M.name}</h2><div class="grid">` + W.map(w=>`<div class="dow">${w}</div>`).join("");
+    for (let i=0;i<first;i++) h += `<div class="day empty"></div>`;
+    for (let d=1; d<=days; d++){
+      const iso = `${M.y}-${pad(M.m+1)}-${pad(d)}`, v = V.find(x=>x.d===iso);
+      h += v ? `<a class="day post ${cls(v.key)}" href="#${v.key}"><span class="d">${d}</span><span class="t">${esc(v.t)}</span></a>`
+             : `<div class="day"><span class="d">${d}</span></div>`;
+    }
+    el.insertAdjacentHTML("beforeend", h + `</div></div>`);
+  }
+}
+
+/* ---------- cards ---------- */
+const list = document.getElementById("list");
+V.forEach(v=>{
+  const dt = new Date(v.d+"T12:00:00");
+  const ref = v.id ? `<a href="${IG(v.id)}" target="_blank" rel="noopener">Ver vídeo de referência ↗</a>` : "Ideia original, sem vídeo de referência";
+  list.insertAdjacentHTML("beforeend", `
+  <article class="card" id="${v.key}">
+    <div class="date"><span class="n">${fmt(v.d)}</span><span class="w">${W[dt.getDay()]} · 19h</span></div>
+    <div class="body">
+      <div class="top"><h3>${esc(v.t)}</h3><span class="chip kind">${v.rot?"🎙️ com fala":"🎵 sem fala"}</span><span class="chip wait" data-chip></span></div>
+      <dl>
+        <dt>A ideia</dt><dd>${esc(v.ideia)}</dd>
+        ${v.rot?`<dt>Roteiro</dt><dd class="rot">${v.rot.map(l=>`<p>${esc(l).replace(/\[([^\]]+)\]/g,'<span class="cue">[$1]</span>')}</p>`).join("")}</dd>`:""}
+        <dt>Texto na tela</dt><dd class="screen">${esc(v.tela)}</dd>
+        <dt>Legenda</dt><dd style="white-space:pre-line">${esc(v.leg)}</dd>
+        <dt>Música</dt><dd>${esc(v.audio)}</dd>
+        <dt>Referência</dt><dd class="ref">${ref}</dd>
+      </dl>
+      ${v.q?`<div class="q">${esc(v.q)}</div>`:""}
+      ${v.pick?`<div class="q pick">
+        <label class="small" for="p-${v.key}">${esc(v.pick.label)}</label>
+        <div class="chips">${v.pick.sug.map(s=>`<button type="button" class="sug" data-sug="${esc(s)}">${esc(s)}</button>`).join("")}</div>
+        <input id="p-${v.key}" placeholder="Escolha acima ou escreva outro procedimento">
+        <div class="btns"><button type="button" class="primary" data-savepick>Salvar procedimento</button><span class="saved" data-pickSaved></span></div>
+      </div>`:""}
+      <div class="decide">
+        <div class="btns">
+          <button type="button" class="a" data-act="aprovado" aria-pressed="false">✓ Aprovar</button>
+          <button type="button" class="r" data-act="ajuste" aria-pressed="false">✎ Pedir ajuste</button>
+        </div>
+        <div data-fixbox hidden>
+          <label class="small" for="c-${v.key}">O que você quer que mude neste vídeo?</label>
+          <textarea id="c-${v.key}" placeholder="Ex.: trocar a frase da tela, usar outra música, mostrar outro serviço…"></textarea>
+          <div class="btns" style="margin-top:8px"><button type="button" class="primary" data-savefix>Salvar ajuste</button><span class="saved" data-saved></span></div>
+        </div>
+      </div>
+    </div>
+  </article>`);
+});
+
+function paintCard(v){
+  const card = document.getElementById(v.key), s = state[v.key] || {};
+  const c = cls(v.key);
+  card.classList.remove("ok","fix"); if (c!=="wait") card.classList.add(c);
+  const chip = card.querySelector("[data-chip]");
+  chip.className = "chip " + c;
+  chip.textContent = c==="ok" ? "Aprovado" : c==="fix" ? "Ajuste pedido" : "Falta avaliar";
+  card.querySelector('[data-act="aprovado"]').setAttribute("aria-pressed", s.status==="aprovado");
+  card.querySelector('[data-act="ajuste"]').setAttribute("aria-pressed", s.status==="ajuste");
+  const box = card.querySelector("[data-fixbox]");
+  box.hidden = s.status!=="ajuste";
+  const ta = card.querySelector("textarea");
+  if (document.activeElement!==ta) ta.value = s.comentario || "";
+  card.querySelector("[data-saved]").textContent = s.status==="ajuste" && s.comentario ? "Ajuste salvo" : "";
+  const pi = card.querySelector("#p-"+v.key);
+  if (pi){
+    if (document.activeElement!==pi) pi.value = s.procedimento || "";
+    card.querySelectorAll(".sug").forEach(b=>b.setAttribute("aria-pressed", b.dataset.sug===pi.value));
+    card.querySelector("[data-pickSaved]").textContent = s.procedimento ? "Procedimento salvo: " + s.procedimento : "";
+  }
+}
+function paintAll(){
+  V.forEach(paintCard); renderMonths();
+  const ok = V.filter(v=>cls(v.key)==="ok").length, fix = V.filter(v=>cls(v.key)==="fix").length;
+  document.getElementById("cOk").textContent = ok;
+  document.getElementById("cFix").textContent = fix;
+  document.getElementById("cWait").textContent = V.length-ok-fix;
+  document.getElementById("bOk").style.width = (ok/V.length*100)+"%";
+  document.getElementById("bFix").style.width = (fix/V.length*100)+"%";
+  updateSendbar();
+}
+
+/* ---------- Resumo das respostas (visível no site para a Ana e a cliente) ---------- */
+let isOwner = true;
+const fmtWhen = iso => { if (!iso) return ""; const d = new Date(iso); return isNaN(d) ? "" : pad(d.getDate())+"/"+pad(d.getMonth()+1)+" "+pad(d.getHours())+":"+pad(d.getMinutes()); };
+function updateSendbar(){
+  const panel = document.getElementById("anaPanel"); if (!panel) return;
+  panel.hidden = false;
+  const ok = V.filter(v=>cls(v.key)==="ok").length, fix = V.filter(v=>cls(v.key)==="fix").length;
+  const last = V.map(v=>state[v.key]?.em||"").sort().pop();
+  document.getElementById("anaInfo").textContent =
+    `${ok} aprovados · ${fix} com ajuste · ${V.length-ok-fix} sem resposta` + (last ? ` · última resposta em ${fmtWhen(last)}` : " · nenhuma resposta ainda");
+  const rows = document.getElementById("anaRows"); rows.innerHTML = "";
+  V.forEach(v=>{
+    const s = state[v.key] || {}, c = cls(v.key);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td></td><td><a href="#${v.key}"></a></td><td><span class="chip ${c}"></span></td><td></td><td></td>`;
+    tr.children[0].textContent = fmt(v.d);
+    tr.querySelector("a").textContent = v.t;
+    tr.querySelector(".chip").textContent = c==="ok" ? "Aprovado" : c==="fix" ? "Ajuste" : "Sem resposta";
+    tr.children[3].textContent = [s.status==="ajuste" ? (s.comentario || "(pediu ajuste, sem comentário)") : "", s.procedimento ? "Procedimento: " + s.procedimento : ""].filter(Boolean).join(" · ");
+    tr.children[4].textContent = fmtWhen(s.em);
+    rows.appendChild(tr);
+  });
+}
+
+/* ---------- persistence: planilha do Google (Apps Script) ---------- */
+/* Cole aqui a URL do Apps Script implantado (termina em /exec). */
+const SCRIPT_URL = "";
+let syncMode = "loading";
+let pend = {};
+try { pend = JSON.parse(localStorage.getItem(LS+"-pend") || "{}") || {}; } catch(e) { pend = {}; }
+const savePend = () => { try { localStorage.setItem(LS+"-pend", JSON.stringify(pend)); } catch(e) {} };
+function setSync(mode){
+  syncMode = mode;
+  const el = document.getElementById("sync"), t = document.getElementById("syncText");
+  el.className = "sync" + (mode==="online" ? " on" : (mode==="local"||mode==="config") ? " local warn" : "");
+  t.textContent = mode==="online" ? "Tudo certo: suas respostas são salvas automaticamente e a Ana já consegue ver."
+    : mode==="local" ? "Atenção: não foi possível salvar agora (sem conexão?). Suas respostas ficaram guardadas neste aparelho e serão enviadas assim que a página conseguir se conectar."
+    : mode==="config" ? "Esta página ainda não está ligada à planilha de respostas."
+    : "Carregando as respostas…";
+}
+async function send(col, id, body){
+  const key = col + "/" + id;
+  pend[key] = {col, id, body}; savePend();
+  if (!SCRIPT_URL){ setSync("config"); return false; }
+  try {
+    const r = await fetch(SCRIPT_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({col, id, body})});
+    const j = await r.json();
+    if (!j || !j.ok) throw new Error("save failed");
+    if (pend[key] && JSON.stringify(pend[key].body) === JSON.stringify(body)) { delete pend[key]; savePend(); }
+    setSync("online"); return true;
+  } catch(e){ setSync("local"); return false; }
+}
+async function flushPending(){
+  for (const p of Object.values(pend)){ const ok = await send(p.col, p.id, p.body); if (!ok) return; }
+}
+async function persist(k){
+  saveLocal(); paintAll();
+  const v = V.find(x=>x.key===k);
+  await send("aprovacoes", k, {...state[k], titulo: v ? v.t : "", data_post: v ? v.d : ""});
+}
+function decide(k, status){
+  const prev = state[k] || {};
+  state[k] = {status, comentario: status==="ajuste" ? (prev.comentario||"") : "", procedimento: prev.procedimento||"", em: new Date().toISOString()};
+  persist(k);
+  if (status==="ajuste") setTimeout(()=>document.getElementById("c-"+k).focus(),0);
+}
+list.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if (!b) return;
+  const k = b.closest(".card").id;
+  if (b.dataset.act) decide(k, b.dataset.act);
+  if (b.hasAttribute("data-savefix")){
+    const txt = document.getElementById("c-"+k).value.trim();
+    state[k] = {status:"ajuste", comentario: txt, procedimento: state[k]?.procedimento||"", em: new Date().toISOString()};
+    persist(k);
+  }
+  if (b.dataset.sug){
+    const pi = document.getElementById("p-"+k); pi.value = b.dataset.sug;
+    b.parentElement.querySelectorAll(".sug").forEach(x=>x.setAttribute("aria-pressed", x===b));
+  }
+  if (b.hasAttribute("data-savepick")){
+    const val = document.getElementById("p-"+k).value.trim();
+    state[k] = {status: state[k]?.status||"", comentario: state[k]?.comentario||"", procedimento: val, em: new Date().toISOString()};
+    persist(k);
+  }
+});
+list.addEventListener("focusout", e=>{
+  if (e.target.tagName!=="TEXTAREA" || !e.target.closest(".card")) return;
+  const k = e.target.closest(".card").id, txt = e.target.value.trim();
+  if (state[k]?.status==="ajuste" && txt !== (state[k].comentario||"")){
+    state[k] = {...state[k], comentario: txt, em: new Date().toISOString()};
+    persist(k);
+  }
+});
+
+/* ---------- promoções e produções ---------- */
+function renderExtras(){
+  const pl = document.getElementById("promoList"), rl = document.getElementById("prodList");
+  pl.innerHTML = ""; rl.innerHTML = "";
+  Object.entries(promos).sort((a,b)=>(a[1].em||"").localeCompare(b[1].em||"")).forEach(([id,p])=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<div><b></b><span></span></div><button type="button" data-del-promo="${id}">Remover</button>`;
+    li.querySelector("b").textContent = p.titulo;
+    li.querySelector("span").textContent = [p.quando, p.detalhes].filter(Boolean).join(" · ");
+    pl.appendChild(li);
+  });
+  Object.entries(prods).sort((a,b)=>((a[1].data||"")+(a[1].hora||"")).localeCompare((b[1].data||"")+(b[1].hora||""))).forEach(([id,p])=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<div><b></b><span></span></div><button type="button" data-del-prod="${id}">Remover</button>`;
+    li.querySelector("b").textContent = p.tipo;
+    li.querySelector("span").textContent = [`${fmtBR(p.data)} às ${p.hora}`, p.obs].filter(Boolean).join(" · ");
+    rl.appendChild(li);
+  });
+}
+async function saveExtra(col, id, body){
+  saveLocal(); renderExtras();
+  await send(col, id, body);
+}
+document.getElementById("promoForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const t = document.getElementById("pTitulo"), q = document.getElementById("pQuando"), d = document.getElementById("pDetalhes");
+  if (!t.value.trim()) return;
+  const id = newId(), body = {titulo:t.value.trim(), quando:q.value.trim(), detalhes:d.value.trim(), em:new Date().toISOString()};
+  promos[id] = body; t.value = q.value = d.value = "";
+  saveExtra("promocoes", id, body);
+});
+document.getElementById("prodForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const t = document.getElementById("rTipo"), da = document.getElementById("rData"), h = document.getElementById("rHora"), o = document.getElementById("rObs");
+  if (!t.value.trim() || !da.value || !h.value) return;
+  const id = newId(), body = {tipo:t.value.trim(), data:da.value, hora:h.value, obs:o.value.trim(), em:new Date().toISOString()};
+  prods[id] = body; t.value = da.value = h.value = o.value = "";
+  saveExtra("producoes", id, body);
+});
+document.querySelector(".extras").addEventListener("click", e=>{
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.delPromo){ delete promos[b.dataset.delPromo]; saveExtra("promocoes", b.dataset.delPromo, null); }
+  if (b.dataset.delProd){ delete prods[b.dataset.delProd]; saveExtra("producoes", b.dataset.delProd, null); }
+});
+
+/* ---------- copy summary ---------- */
+function summary(){
+  const lines = ["Aprovação dos Reels · Glamour Beauty (nov/2026 a jan/2027)", ""];
+  const pr = Object.values(promos), pd = Object.values(prods).sort((a,b)=>(a.data+a.hora).localeCompare(b.data+b.hora));
+  if (pr.length){ lines.push("🎉 Promoções e eventos:"); pr.forEach(p=>lines.push(`• ${p.titulo}${p.quando?" ("+p.quando+")":""}${p.detalhes?" · "+p.detalhes:""}`)); lines.push(""); }
+  if (pd.length){ lines.push("👰 Produções para gravar:"); pd.forEach(p=>lines.push(`• ${p.tipo} · ${fmtBR(p.data)} às ${p.hora}${p.obs?" · "+p.obs:""}`)); lines.push(""); }
+  lines.push("🎬 Vídeos:");
+  V.forEach(v=>{
+    const s = state[v.key] || {};
+    if (v.pick) lines.push(`🧴 ${fmt(v.d)} · procedimento escolhido: ${s.procedimento || "(não informado)"}`);
+    if (s.status==="aprovado") lines.push(`✅ ${fmt(v.d)} · ${v.t}`);
+    else if (s.status==="ajuste") lines.push(`✏️ ${fmt(v.d)} · ${v.t}\n    Ajuste: ${s.comentario || "(sem comentário)"}`);
+    else lines.push(`⏳ ${fmt(v.d)} · ${v.t} (falta avaliar)`);
+  });
+  return lines.join("\n");
+}
+
+/* ---------- start ---------- */
+paintAll();
+renderExtras();
+setSync("loading");
+
+/* Lê todas as respostas da planilha. A planilha é a fonte da verdade,
+   exceto para respostas deste aparelho que ainda não foram enviadas. */
+async function load(){
+  if (!SCRIPT_URL){ setSync("config"); return; }
+  try {
+    const r = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    const data = await r.json();
+    const ap = data.aprovacoes || {}, pr = data.promocoes || {}, pd = data.producoes || {};
+    for (const k of Object.keys(state)) if (!pend["aprovacoes/"+k]) delete state[k];
+    for (const [k,x] of Object.entries(ap)) if (!pend["aprovacoes/"+k]) state[k] = {status:x.status||"", comentario:x.comentario||"", procedimento:x.procedimento||"", em:x.em||""};
+    const merge = (col, target, incoming) => {
+      for (const k of Object.keys(target)) if (!pend[col+"/"+k]) delete target[k];
+      for (const [k,x] of Object.entries(incoming)) if (!pend[col+"/"+k]) target[k] = {...x};
+    };
+    merge("promocoes", promos, pr);
+    merge("producoes", prods, pd);
+    saveLocal(); paintAll(); renderExtras();
+    setSync(Object.keys(pend).length ? "local" : "online");
+    if (Object.keys(pend).length) await flushPending();
+  } catch(e){ setSync("local"); }
+}
+load();
+setInterval(()=>{ if (document.visibilityState === "visible") load(); }, 30000);
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState === "visible") load(); });
+</script>
+
+</body>
+</html>
