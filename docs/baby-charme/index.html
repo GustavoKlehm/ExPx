@@ -345,7 +345,8 @@ function paintAll(){
 
 /* ---------- planilha do Google (Apps Script) ---------- */
 /* Cole aqui a URL do Apps Script implantado (termina em /exec). */
-const SCRIPT_URL = "";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK2uGhyjGstxwqlTy8TrD1j2A8bubugyOx7k9_LZ8T8O2H6aw1qmLwSJQc7Mm-j7wr/exec";
+const CLIENTE = "babycharme"; /* aba "Baby Charme" na mesma planilha da Glamour */
 let pend = {};
 try { pend = JSON.parse(localStorage.getItem(LS+"-pend") || "{}") || {}; } catch(e) {}
 const savePend = () => { try { localStorage.setItem(LS+"-pend", JSON.stringify(pend)); } catch(e) {} };
@@ -362,7 +363,7 @@ async function send(col, id, body){
   pend[key] = {col, id, body}; savePend();
   if (!SCRIPT_URL){ setSync("config"); return false; }
   try {
-    const r = await fetch(SCRIPT_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({col, id, body})});
+    const r = await fetch(SCRIPT_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({cliente: CLIENTE, col, id, body})});
     const j = await r.json();
     if (!j || !j.ok) throw new Error("save failed");
     if (pend[key] && JSON.stringify(pend[key].body) === JSON.stringify(body)) { delete pend[key]; savePend(); }
@@ -426,8 +427,9 @@ paintAll(); renderPromos(); setSync("loading");
 async function load(){
   if (!SCRIPT_URL){ setSync("config"); return; }
   try {
-    const r = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    const r = await fetch(SCRIPT_URL + "?cliente=" + CLIENTE + "&t=" + Date.now());
     const data = await r.json();
+    if (data.ok === false) throw new Error(data.error || "erro");
     const ap = data.aprovacoes || {}, pr = data.promocoes || {};
     for (const k of Object.keys(state)) if (!pend["aprovacoes/"+k]) delete state[k];
     for (const [k,x] of Object.entries(ap)) if (!pend["aprovacoes/"+k]) state[k] = {status:x.status||"", comentario:x.comentario||"", em:x.em||""};
