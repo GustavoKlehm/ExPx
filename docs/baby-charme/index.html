@@ -83,6 +83,9 @@ dl{display:grid;grid-template-columns:118px minmax(0,1fr);gap:6px 12px;margin:0;
 dt{color:var(--muted);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
 dd{margin:0;min-width:0;overflow-wrap:anywhere}
 .screen{font-weight:700}
+.rot{background:var(--soft);border-radius:10px;padding:10px 14px;display:flex;flex-direction:column;gap:8px}
+.rot p{margin:0;line-height:1.55}
+.rot .cue{color:var(--muted);font-size:12.5px;font-style:italic}
 .ref a{color:var(--accent);font-weight:600;text-decoration:none}
 .ref a:hover{text-decoration:underline}
 .decide{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
@@ -191,10 +194,16 @@ const V = [
   tela:"Na capa: “O que vem no nosso enxoval de batizado 🤍”",
   leg:"Arrasta pro lado e vem ver, peça por peça, o que compõe o nosso enxoval de batizado 🤍 Cada kit pode ser montado do jeitinho que você sonhou.\n\nSalva pra consultar depois e marca quem vai batizar em breve 👇\n\n#enxovaldebatizado #batizado #doisvizinhos #babycharme"},
  {d:"2026-11-19",k:"reels",t:"Montando a caixa de batizado",id:"DePnZT8ve9h",
-  ideia:"Mãos montando uma caixa de batizado do zero, como um presente. A câmera fica fixa, filmando de cima, e cada peça entra na caixa numa batida da música: papel de seda, manta, roupinha, sapatinho e acessório. No final, a caixa é fechada com laço.",
+  ideia:"Mãos montando uma caixa de batizado do zero, como um presente. A câmera fica fixa, filmando de cima, e cada peça entra na caixa enquanto ela conta o que está colocando: papel de seda, manta, roupinha, sapatinho e acessório. No final, a caixa é fechada com laço.",
+  rot:["[caixa vazia, mãos entrando] Vem montar comigo um enxoval de batizado 🤍",
+       "[papel de seda] Primeiro, o papel de seda, pra tudo chegar perfeito.",
+       "[manta] A manta, pra aquecer no grande dia.",
+       "[roupinha] A roupinha, feita pra esse momento.",
+       "[sapatinho e acessório] O sapatinho e os detalhes que completam.",
+       "[laço sendo amarrado, câmera lenta] Pronto! Agora me conta: quem vai ser a madrinha? Marca ela aqui 👇"],
   tela:"No início: “Montando um enxoval de batizado 🤍” · No final: “Madrinha, essa é com você 😉”",
   leg:"Tem presente que fica pra sempre na memória da família 🤍 Nosso enxoval de batizado é montado peça por peça, com todo carinho, pra esse dia tão especial.\n\nMarca aqui a madrinha (ou o padrinho) que precisa ver isso 👇\n\n📍 Dois Vizinhos – PR · Encomendas pelo direct\n#enxovaldebatizado #batizado #madrinha #doisvizinhos #babycharme",
-  audio:"Música delicada, com cada peça entrando numa batida"},
+  audio:"Música delicada, baixinha por baixo da fala"},
  {d:"2026-11-21",k:"foto",t:"Detalhe do bordado com nome",
   ideia:"Foto bem de perto de um nome bordado num body ou numa manta, com a luz da janela vindo de lado para realçar o bordado.",
   tela:"Sem texto, só a foto",
@@ -208,7 +217,7 @@ const V = [
   ideia:"Carrossel com um look de mesversário por slide, sempre no mesmo fundo e com o número no canto.",
   tela:"Na capa: “Qual vai ser o look do próximo mesversário? 🎂”",
   leg:"Cada mês merece ser comemorado, e com um look à altura 🎂🤍\n\nQual você escolheria pro próximo mesversário? Comenta o número 👇\n\n#mesversario #lookmesversario #modainfantil #doisvizinhos #babycharme"},
- {d:"2026-11-26",k:"reels",t:"Um passeio pela loja",
+ {d:"2026-11-26",k:"reels",t:"Um passeio pela loja",id:"DdSDSUdhXTg",
   ideia:"Como se quem assiste estivesse entrando na loja: a porta abrindo, as araras de vestidos, a mão passando nas roupinhas, os bodys, os acessórios, o enxoval montado e uma peça sendo embalada. No final, a sacola é entregue na direção da câmera. Cada cena troca na batida da música.",
   tela:"No início: “POV: você entrou na Baby Charme 🤍” · No final: “Marca a mamãe que ia amar 👇”",
   leg:"Vem conhecer nosso cantinho 🤍 Enxoval de batizado, vestidos de festa, bodys personalizados, looks de mesversário e muito mais, tudo feito com carinho pros pequenos.\n\nMarca aquela mamãe (ou futura mamãe) que ia amar passar aqui 👇\n\n📍 Dois Vizinhos – PR\n#modainfantil #lojainfantil #enxovaldebatizado #doisvizinhos #babycharme",
@@ -263,9 +272,10 @@ V.forEach(v=>{
   <article class="card" id="${v.key}">
     <div class="date"><span class="n">${fmt(v.d)}</span><span class="w">${W[dt.getDay()]}</span></div>
     <div class="body">
-      <div class="top"><h3>${esc(v.t)}</h3><span class="chip kind">${reels?"🎬 Reels · sem fala":"📷 Foto"}</span><span class="chip wait" data-chip></span></div>
+      <div class="top"><h3>${esc(v.t)}</h3><span class="chip kind">${reels?(v.rot?"🎬 Reels · 🎙️ com fala":"🎬 Reels · 🎵 sem fala"):"📷 Foto"}</span><span class="chip wait" data-chip></span></div>
       <dl>
         <dt>A ideia</dt><dd>${esc(v.ideia)}</dd>
+        ${v.rot?`<dt>Roteiro</dt><dd class="rot">${v.rot.map(l=>`<p>${esc(l).replace(/\[([^\]]+)\]/g,'<span class="cue">[$1]</span>')}</p>`).join("")}</dd>`:""}
         <dt>${reels?"Texto na tela":"Texto"}</dt><dd class="screen">${esc(v.tela)}</dd>
         <dt>Legenda</dt><dd style="white-space:pre-line">${esc(v.leg)}</dd>
         ${v.audio?`<dt>Música</dt><dd>${esc(v.audio)}</dd>`:""}
