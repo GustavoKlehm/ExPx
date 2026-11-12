@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Aprovação Baby Charme</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+[hidden]{display:none!important}
+/* Layout: welcome + progress, November grid colored by approval status, then one card per post with approve / request-change controls */
+:root{
+  --bg:#fbf7f4; --surface:#ffffff; --ink:#33262c; --muted:#7d6b73; --line:#ecdfe2; --soft:#f5eef0;
+  --accent:#a24d72; --accent-soft:#f6e1ea;
+  --ok:#1f7a4d; --ok-soft:#dcf2e6; --fix:#a3540a; --fix-soft:#fdebd6; --wait:#7d6b73; --wait-soft:#f1eaed;
+  --display:"Fraunces",Georgia,serif; --body:"Inter","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17110f; --surface:#211a19; --ink:#f5ebee; --muted:#b7a5ac; --line:#3b2d31; --soft:#2b2124;
+  --accent:#f19bc0; --accent-soft:#45202f;
+  --ok:#6fd6a0; --ok-soft:#163626; --fix:#f5b169; --fix-soft:#3d2610; --wait:#b7a5ac; --wait-soft:#2b2124; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17110f; --surface:#211a19; --ink:#f5ebee; --muted:#b7a5ac; --line:#3b2d31; --soft:#2b2124;
+  --accent:#f19bc0; --accent-soft:#45202f;
+  --ok:#6fd6a0; --ok-soft:#163626; --fix:#f5b169; --fix-soft:#3d2610; --wait:#b7a5ac; --wait-soft:#2b2124; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 72px}
+.wrap{max-width:900px;margin:0 auto;display:flex;flex-direction:column;gap:32px}
+.eyebrow{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,5.5vw,44px);line-height:1.05;margin:6px 0 0;text-wrap:balance}
+.lead{color:var(--muted);max-width:62ch;margin:12px 0 0;font-size:15.5px}
+.steps{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px;padding:0;list-style:none}
+.steps li{font-size:13.5px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px}
+.steps b{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.progress{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-end}
+.progress div{font-size:13px;color:var(--muted)}
+.progress b{display:block;font-family:var(--display);font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.progress .ok b{color:var(--ok)} .progress .fix b{color:var(--fix)} .progress .wait b{color:var(--wait)}
+.bar{height:8px;border-radius:999px;background:var(--wait-soft);overflow:hidden;display:flex}
+.bar span{display:block;height:100%}
+.bar .ok{background:var(--ok)} .bar .fix{background:var(--fix)}
+.sync{font-size:13px;color:var(--muted);display:flex;gap:8px;align-items:flex-start}
+.sync .dot{width:9px;height:9px;border-radius:50%;background:var(--wait);margin-top:5px;flex:0 0 auto}
+.sync.on .dot{background:var(--ok)}
+.sync.warn{background:var(--fix-soft);color:var(--ink);border-radius:10px;padding:10px 12px}
+.sync.warn .dot{background:var(--fix)}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 14px;font-weight:600;font-size:14px}
+button:focus-visible,textarea:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.month{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;min-width:0}
+.month h2{font-family:var(--display);font-size:20px;margin:0 0 10px}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{font-size:10.5px;font-weight:700;color:var(--muted);text-align:center;text-transform:uppercase;letter-spacing:.05em}
+.day{min-height:66px;border-radius:8px;padding:5px;font-size:11px;display:flex;flex-direction:column;gap:3px;min-width:0;color:var(--muted)}
+.day .d{font-weight:600;font-variant-numeric:tabular-nums}
+.day.post{text-decoration:none;color:var(--ink);background:var(--wait-soft);border-left:3px solid var(--wait)}
+.day.post.ok{background:var(--ok-soft);border-left-color:var(--ok)}
+.day.post.fix{background:var(--fix-soft);border-left-color:var(--fix)}
+.day.post .t{font-weight:600;line-height:1.2;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.day.post:hover{outline:2px solid var(--ink);outline-offset:-2px}
+.day.empty{visibility:hidden}
+@media (max-width:520px){.day{min-height:44px}.day.post .t{display:none}}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--muted);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.list{display:flex;flex-direction:column;gap:14px}
+.list > h2,.extras h2{font-family:var(--display);font-size:24px;margin:6px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--wait);border-radius:14px;padding:18px;display:grid;grid-template-columns:84px minmax(0,1fr);gap:16px;scroll-margin-top:16px}
+.card.ok{border-left-color:var(--ok)} .card.fix{border-left-color:var(--fix)}
+.date{display:flex;flex-direction:column;gap:2px}
+.date .n{font-family:var(--display);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.date .w{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.body{display:flex;flex-direction:column;gap:10px;min-width:0}
+.top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.card h3{font-family:var(--display);font-size:19px;margin:0;text-wrap:balance}
+.chip{font-size:11.5px;font-weight:700;border-radius:999px;padding:3px 9px}
+.chip.wait{background:var(--wait-soft);color:var(--wait)} .chip.ok{background:var(--ok-soft);color:var(--ok)} .chip.fix{background:var(--fix-soft);color:var(--fix)}
+.chip.kind{background:var(--soft);color:var(--muted);font-weight:600}
+dl{display:grid;grid-template-columns:118px minmax(0,1fr);gap:6px 12px;margin:0;font-size:14.5px}
+dt{color:var(--muted);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-top:3px}
+dd{margin:0;min-width:0;overflow-wrap:anywhere}
+.screen{font-weight:700}
+.ref a{color:var(--accent);font-weight:600;text-decoration:none}
+.ref a:hover{text-decoration:underline}
+.decide{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:10px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btns button[aria-pressed="true"].a{background:var(--ok);border-color:var(--ok);color:var(--bg)}
+.btns button[aria-pressed="true"].r{background:var(--fix);border-color:var(--fix);color:var(--bg)}
+textarea,input{font:inherit;font-size:14.5px;width:100%;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:9px 12px}
+textarea{min-height:86px;resize:vertical}
+label.small{font-size:13px;font-weight:600}
+.saved{font-size:12.5px;color:var(--muted)}
+.hint{margin:0 0 4px;font-size:13px;color:var(--muted)}
+@media (max-width:560px){.card{grid-template-columns:1fr;gap:10px}.date{flex-direction:row;align-items:baseline;gap:8px}dl{grid-template-columns:1fr}}
+.extras{display:flex;flex-direction:column;gap:14px}
+.extras .panel{gap:8px;max-width:560px}
+.extras h3{font-family:var(--display);font-size:18px;margin:0}
+.extras button.primary{align-self:flex-start;margin-top:4px}
+.xlist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px}
+.xlist:empty{display:none}
+.xlist li{background:var(--soft);border-radius:10px;padding:10px 12px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.xlist li div{min-width:0;overflow-wrap:anywhere;font-size:14px}
+.xlist li b{display:block}
+.xlist li span{color:var(--muted);font-size:13px}
+.xlist li button{padding:4px 10px;font-size:12.5px;flex:0 0 auto}
+.resumo{border:2px solid var(--accent)}
+.resumo h2{font-family:var(--display);font-size:22px;margin:4px 0 0}
+.tablewrap{overflow-x:auto}
+.resumo table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+.resumo th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.resumo td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top;overflow-wrap:anywhere}
+.resumo td:first-child,.resumo td:last-child{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+footer{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Baby Charme · Dois Vizinhos</span>
+    <h1>Planejamento de novembro</h1>
+    <p class="lead">Aqui estão os 4 Reels e as 4 fotos que preparei para o Instagram da Baby Charme, de 17 a 30 de novembro. Em cada post você encontra a ideia, o texto que aparece na tela, a legenda e, quando tiver, o vídeo de referência.</p>
+    <ol class="steps">
+      <li><b>1.</b> Veja o calendário</li>
+      <li><b>2.</b> Leia cada post</li>
+      <li><b>3.</b> Toque em <b>Aprovar</b> ou <b>Pedir ajuste</b> e escreva o que mudar</li>
+    </ol>
+  </header>
+
+  <section class="panel" aria-label="Andamento da aprovação">
+    <div class="progress">
+      <div class="ok"><b id="cOk">0</b>aprovados</div>
+      <div class="fix"><b id="cFix">0</b>com ajuste</div>
+      <div class="wait"><b id="cWait">8</b>faltam avaliar</div>
+    </div>
+    <div class="bar" aria-hidden="true"><span class="ok" id="bOk" style="width:0"></span><span class="fix" id="bFix" style="width:0"></span></div>
+    <div class="sync" id="sync"><span class="dot"></span><span id="syncText">Carregando suas respostas…</span></div>
+  </section>
+
+  <section aria-label="Calendário">
+    <div class="month" id="month"></div>
+    <div class="legend">
+      <span><i style="background:var(--ok)"></i>aprovado</span>
+      <span><i style="background:var(--fix)"></i>pediu ajuste</span>
+      <span><i style="background:var(--wait)"></i>falta avaliar</span>
+    </div>
+  </section>
+
+  <section class="list" id="list"><h2>Os posts, um por um</h2></section>
+
+  <section class="extras" aria-label="Novidades da loja">
+    <div>
+      <h2>Tem novidade na Baby Charme?</h2>
+      <p class="lead" style="margin-top:6px">Conte aqui se vai ter promoção, lançamento de coleção, peça nova ou alguma data especial. Eu encaixo nos próximos conteúdos.</p>
+    </div>
+    <form class="panel" id="promoForm" autocomplete="off">
+      <h3>🎀 Promoção, lançamento ou novidade</h3>
+      <label class="small" for="pTitulo">O que vai acontecer?</label>
+      <input id="pTitulo" required placeholder="Ex.: Chegou a coleção de Natal">
+      <label class="small" for="pQuando">Quando?</label>
+      <input id="pQuando" placeholder="Ex.: a partir de 01/12">
+      <label class="small" for="pDetalhes">Detalhes (opcional)</label>
+      <textarea id="pDetalhes" placeholder="Valores, prazos de encomenda, peças…"></textarea>
+      <button class="primary" type="submit">Adicionar</button>
+      <ul class="xlist" id="promoList"></ul>
+    </form>
+  </section>
+
+  <section class="panel resumo" aria-label="Resumo das respostas">
+    <div>
+      <span class="eyebrow">Resumo</span>
+      <h2>Respostas da aprovação</h2>
+      <p class="hint" id="resInfo"></p>
+    </div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Data</th><th>Post</th><th>Resposta</th><th>O que pediu</th><th>Quando</th></tr></thead>
+      <tbody id="resRows"></tbody>
+    </table></div>
+  </section>
+
+  <footer>Planejamento feito por Ana Julia Videomaker · @anajulia.videomaker_</footer>
+</div>
+
+<script>
+const IG = id => "https://www.instagram.com/reel/" + id + "/";
+const V = [
+ {d:"2026-11-17",k:"foto",t:"O que vem no enxoval de batizado",
+  ideia:"Carrossel com um slide por peça do kit, todas fotografadas sobre o mesmo fundo claro. A capa mostra o kit todo montado na caixa e o último slide, o kit fechado com laço.",
+  tela:"Na capa: “O que vem no nosso enxoval de batizado 🤍”",
+  leg:"Arrasta pro lado e vem ver, peça por peça, o que compõe o nosso enxoval de batizado 🤍 Cada kit pode ser montado do jeitinho que você sonhou.\n\nSalva pra consultar depois e marca quem vai batizar em breve 👇\n\n#enxovaldebatizado #batizado #doisvizinhos #babycharme"},
+ {d:"2026-11-19",k:"reels",t:"Montando a caixa de batizado",id:"DePnZT8ve9h",
+  ideia:"Mãos montando uma caixa de batizado do zero, como um presente. A câmera fica fixa, filmando de cima, e cada peça entra na caixa numa batida da música: papel de seda, manta, roupinha, sapatinho e acessório. No final, a caixa é fechada com laço.",
+  tela:"No início: “Montando um enxoval de batizado 🤍” · No final: “Madrinha, essa é com você 😉”",
+  leg:"Tem presente que fica pra sempre na memória da família 🤍 Nosso enxoval de batizado é montado peça por peça, com todo carinho, pra esse dia tão especial.\n\nMarca aqui a madrinha (ou o padrinho) que precisa ver isso 👇\n\n📍 Dois Vizinhos – PR · Encomendas pelo direct\n#enxovaldebatizado #batizado #madrinha #doisvizinhos #babycharme",
+  audio:"Música delicada, com cada peça entrando numa batida"},
+ {d:"2026-11-21",k:"foto",t:"Detalhe do bordado com nome",
+  ideia:"Foto bem de perto de um nome bordado num body ou numa manta, com a luz da janela vindo de lado para realçar o bordado.",
+  tela:"Sem texto, só a foto",
+  leg:"Tem detalhe que transforma uma peça em lembrança pra vida toda 🤍 Nossos bordados são personalizados com o nome do seu bebê.\n\nSe fosse bordar hoje, qual seria o nome? Comenta aqui 👇\n\n#bordadopersonalizado #bodypersonalizado #doisvizinhos #babycharme"},
+ {d:"2026-11-23",k:"reels",t:"Os detalhes das peças",
+  ideia:"As peças sendo colocadas na caixinha devagar, em câmera lenta e bem de perto: o bordado do nome, a renda, os botões, o sapatinho e o acabamento. Cada detalhe ganha um número na tela, de 1 a 5.",
+  tela:"No início: “Os detalhes que fazem a diferença 🤍” · No final: “Qual é o seu favorito? Comenta o número 👇”",
+  leg:"Cada pecinha é pensada nos mínimos detalhes, do bordado ao último botão 🤍\n\nQual detalhe você mais gostou? Comenta o número 👇\n\n#enxovaldebatizado #enxovalpersonalizado #bordadopersonalizado #doisvizinhos #babycharme",
+  audio:"Música calma e suave"},
+ {d:"2026-11-25",k:"foto",t:"Looks de mesversário",
+  ideia:"Carrossel com um look de mesversário por slide, sempre no mesmo fundo e com o número no canto.",
+  tela:"Na capa: “Qual vai ser o look do próximo mesversário? 🎂”",
+  leg:"Cada mês merece ser comemorado, e com um look à altura 🎂🤍\n\nQual você escolheria pro próximo mesversário? Comenta o número 👇\n\n#mesversario #lookmesversario #modainfantil #doisvizinhos #babycharme"},
+ {d:"2026-11-26",k:"reels",t:"Um passeio pela loja",
+  ideia:"Como se quem assiste estivesse entrando na loja: a porta abrindo, as araras de vestidos, a mão passando nas roupinhas, os bodys, os acessórios, o enxoval montado e uma peça sendo embalada. No final, a sacola é entregue na direção da câmera. Cada cena troca na batida da música.",
+  tela:"No início: “POV: você entrou na Baby Charme 🤍” · No final: “Marca a mamãe que ia amar 👇”",
+  leg:"Vem conhecer nosso cantinho 🤍 Enxoval de batizado, vestidos de festa, bodys personalizados, looks de mesversário e muito mais, tudo feito com carinho pros pequenos.\n\nMarca aquela mamãe (ou futura mamãe) que ia amar passar aqui 👇\n\n📍 Dois Vizinhos – PR\n#modainfantil #lojainfantil #enxovaldebatizado #doisvizinhos #babycharme",
+  audio:"Música animada e delicada"},
+ {d:"2026-11-28",k:"foto",t:"Acessórios com clima de Natal",
+  ideia:"Foto de cima com laços, tiaras e sapatinhos arrumados sobre a mesa, com enfeites de Natal em volta: pisca-pisca, galhinho de pinheiro e bolinhas.",
+  tela:"Sem texto, só a foto",
+  leg:"Os detalhes que completam o look 🎀 Laços, tiaras, sapatinhos… e o Natal já chegando 🎄\n\nQual desses você escolheria? Marca aquela amiga que ama um lacinho 👇\n\n#acessoriosinfantis #lacinhos #natal #doisvizinhos #babycharme"},
+ {d:"2026-11-30",k:"reels",t:"As opções de roupinhas",id:"DcjCp2DuZFE",
+  ideia:"Uma sequência de looks (vestidos de festa, bodys personalizados e looks de mesversário), cada um aparecendo numa batida da música, sempre no mesmo lugar, com um número na tela. Quem gostar comenta QUERO e o número, e a loja manda o valor no direct.",
+  tela:"No início: “Escolhe o seu 👇” · Em cada look: o número · No final: “Comenta QUERO + o número 💌”",
+  leg:"Vestido de festa, body personalizado, look de mesversário… tem opção pra todo momento especial 🤍\n\nGostou de algum? Comenta QUERO + o número do look que a gente te chama no direct com o valor 💌\n\n#modainfantil #vestidodefesta #mesversario #bodypersonalizado #doisvizinhos #babycharme",
+  audio:"“See You In Paris”, The K Club (a mesma do vídeo de referência)"}
+];
+V.forEach((v,i)=>v.key="p"+(i+1)+"-"+v.d.slice(5));
+
+const W = ["dom","seg","ter","qua","qui","sex","sáb"];
+const pad = x => String(x).padStart(2,"0");
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = d => { const dt=new Date(d+"T12:00:00"); return pad(dt.getDate())+"/"+pad(dt.getMonth()+1); };
+const LS = "babycharme-aprovacao-2026-11";
+
+let state = {}, promos = {};
+try { state = JSON.parse(localStorage.getItem(LS) || "{}") || {}; } catch(e) {}
+try { promos = JSON.parse(localStorage.getItem(LS+"-promos") || "{}") || {}; } catch(e) {}
+const saveLocal = () => { try { localStorage.setItem(LS, JSON.stringify(state)); localStorage.setItem(LS+"-promos", JSON.stringify(promos)); } catch(e) {} };
+const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+const cls = k => state[k]?.status==="aprovado" ? "ok" : state[k]?.status==="ajuste" ? "fix" : "wait";
+const short = v => (v.k==="reels"?"🎬 ":"📷 ") + v.t;
+
+/* ---------- calendário ---------- */
+function renderMonth(){
+  const el = document.getElementById("month");
+  const first = new Date(2026,10,1).getDay();
+  let h = `<h2>Novembro</h2><div class="grid">` + W.map(w=>`<div class="dow">${w}</div>`).join("");
+  for (let i=0;i<first;i++) h += `<div class="day empty"></div>`;
+  for (let d=1; d<=30; d++){
+    const iso = `2026-11-${pad(d)}`, v = V.find(x=>x.d===iso);
+    h += v ? `<a class="day post ${cls(v.key)}" href="#${v.key}"><span class="d">${d}</span><span class="t">${esc(short(v))}</span></a>`
+           : `<div class="day"><span class="d">${d}</span></div>`;
+  }
+  el.innerHTML = h + `</div>`;
+}
+
+/* ---------- cards ---------- */
+const list = document.getElementById("list");
+V.forEach(v=>{
+  const dt = new Date(v.d+"T12:00:00");
+  const reels = v.k==="reels";
+  const ref = v.id ? `<a href="${IG(v.id)}" target="_blank" rel="noopener">Ver vídeo de referência ↗</a>` : "";
+  list.insertAdjacentHTML("beforeend", `
+  <article class="card" id="${v.key}">
+    <div class="date"><span class="n">${fmt(v.d)}</span><span class="w">${W[dt.getDay()]}</span></div>
+    <div class="body">
+      <div class="top"><h3>${esc(v.t)}</h3><span class="chip kind">${reels?"🎬 Reels · sem fala":"📷 Foto"}</span><span class="chip wait" data-chip></span></div>
+      <dl>
+        <dt>A ideia</dt><dd>${esc(v.ideia)}</dd>
+        <dt>${reels?"Texto na tela":"Texto"}</dt><dd class="screen">${esc(v.tela)}</dd>
+        <dt>Legenda</dt><dd style="white-space:pre-line">${esc(v.leg)}</dd>
+        ${v.audio?`<dt>Música</dt><dd>${esc(v.audio)}</dd>`:""}
+        ${ref?`<dt>Referência</dt><dd class="ref">${ref}</dd>`:""}
+      </dl>
+      <div class="decide">
+        <div class="btns">
+          <button type="button" class="a" data-act="aprovado" aria-pressed="false">✓ Aprovar</button>
+          <button type="button" class="r" data-act="ajuste" aria-pressed="false">✎ Pedir ajuste</button>
+        </div>
+        <div data-fixbox hidden>
+          <label class="small" for="c-${v.key}">O que você quer que mude neste post?</label>
+          <textarea id="c-${v.key}" placeholder="Ex.: trocar a frase, mostrar outra peça, mudar a legenda…"></textarea>
+          <div class="btns" style="margin-top:8px"><button type="button" class="primary" data-savefix>Salvar ajuste</button><span class="saved" data-saved></span></div>
+        </div>
+      </div>
+    </div>
+  </article>`);
+});
+
+function paintCard(v){
+  const card = document.getElementById(v.key), s = state[v.key] || {}, c = cls(v.key);
+  card.classList.remove("ok","fix"); if (c!=="wait") card.classList.add(c);
+  const chip = card.querySelector("[data-chip]");
+  chip.className = "chip " + c;
+  chip.textContent = c==="ok" ? "Aprovado" : c==="fix" ? "Ajuste pedido" : "Falta avaliar";
+  card.querySelector('[data-act="aprovado"]').setAttribute("aria-pressed", s.status==="aprovado");
+  card.querySelector('[data-act="ajuste"]').setAttribute("aria-pressed", s.status==="ajuste");
+  card.querySelector("[data-fixbox]").hidden = s.status!=="ajuste";
+  const ta = card.querySelector("textarea");
+  if (document.activeElement!==ta) ta.value = s.comentario || "";
+  card.querySelector("[data-saved]").textContent = s.status==="ajuste" && s.comentario ? "Ajuste salvo" : "";
+}
+const fmtWhen = iso => { if (!iso) return ""; const d = new Date(iso); return isNaN(d) ? "" : pad(d.getDate())+"/"+pad(d.getMonth()+1)+" "+pad(d.getHours())+":"+pad(d.getMinutes()); };
+function paintAll(){
+  V.forEach(paintCard); renderMonth();
+  const ok = V.filter(v=>cls(v.key)==="ok").length, fix = V.filter(v=>cls(v.key)==="fix").length;
+  document.getElementById("cOk").textContent = ok;
+  document.getElementById("cFix").textContent = fix;
+  document.getElementById("cWait").textContent = V.length-ok-fix;
+  document.getElementById("bOk").style.width = (ok/V.length*100)+"%";
+  document.getElementById("bFix").style.width = (fix/V.length*100)+"%";
+  const last = V.map(v=>state[v.key]?.em||"").sort().pop();
+  document.getElementById("resInfo").textContent =
+    `${ok} aprovados · ${fix} com ajuste · ${V.length-ok-fix} sem resposta` + (last ? ` · última resposta em ${fmtWhen(last)}` : " · nenhuma resposta ainda");
+  const rows = document.getElementById("resRows"); rows.innerHTML = "";
+  V.forEach(v=>{
+    const s = state[v.key] || {}, c = cls(v.key);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td></td><td><a href="#${v.key}"></a></td><td><span class="chip ${c}"></span></td><td></td><td></td>`;
+    tr.children[0].textContent = fmt(v.d);
+    tr.querySelector("a").textContent = short(v);
+    tr.querySelector(".chip").textContent = c==="ok" ? "Aprovado" : c==="fix" ? "Ajuste" : "Sem resposta";
+    tr.children[3].textContent = s.status==="ajuste" ? (s.comentario || "(pediu ajuste, sem comentário)") : "";
+    tr.children[4].textContent = fmtWhen(s.em);
+    rows.appendChild(tr);
+  });
+}
+
+/* ---------- planilha do Google (Apps Script) ---------- */
+/* Cole aqui a URL do Apps Script implantado (termina em /exec). */
+const SCRIPT_URL = "";
+let pend = {};
+try { pend = JSON.parse(localStorage.getItem(LS+"-pend") || "{}") || {}; } catch(e) {}
+const savePend = () => { try { localStorage.setItem(LS+"-pend", JSON.stringify(pend)); } catch(e) {} };
+function setSync(mode){
+  const el = document.getElementById("sync"), t = document.getElementById("syncText");
+  el.className = "sync" + (mode==="online" ? " on" : (mode==="local"||mode==="config") ? " warn" : "");
+  t.textContent = mode==="online" ? "Tudo certo: suas respostas são salvas automaticamente e a Ana já consegue ver."
+    : mode==="local" ? "Atenção: não foi possível salvar agora (sem conexão?). Suas respostas ficaram guardadas neste aparelho e serão enviadas assim que a página conseguir se conectar."
+    : mode==="config" ? "Esta página ainda não está ligada à planilha de respostas."
+    : "Carregando as respostas…";
+}
+async function send(col, id, body){
+  const key = col + "/" + id;
+  pend[key] = {col, id, body}; savePend();
+  if (!SCRIPT_URL){ setSync("config"); return false; }
+  try {
+    const r = await fetch(SCRIPT_URL, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({col, id, body})});
+    const j = await r.json();
+    if (!j || !j.ok) throw new Error("save failed");
+    if (pend[key] && JSON.stringify(pend[key].body) === JSON.stringify(body)) { delete pend[key]; savePend(); }
+    setSync("online"); return true;
+  } catch(e){ setSync("local"); return false; }
+}
+async function flushPending(){ for (const p of Object.values(pend)){ if (!await send(p.col, p.id, p.body)) return; } }
+async function persist(k){
+  saveLocal(); paintAll();
+  const v = V.find(x=>x.key===k);
+  await send("aprovacoes", k, {...state[k], titulo: v ? short(v) : "", data_post: v ? v.d : ""});
+}
+list.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if (!b) return;
+  const k = b.closest(".card").id, prev = state[k] || {};
+  if (b.dataset.act){
+    state[k] = {status:b.dataset.act, comentario: b.dataset.act==="ajuste" ? (prev.comentario||"") : "", em:new Date().toISOString()};
+    persist(k);
+    if (b.dataset.act==="ajuste") setTimeout(()=>document.getElementById("c-"+k).focus(),0);
+  }
+  if (b.hasAttribute("data-savefix")){
+    state[k] = {status:"ajuste", comentario: document.getElementById("c-"+k).value.trim(), em:new Date().toISOString()};
+    persist(k);
+  }
+});
+list.addEventListener("focusout", e=>{
+  if (e.target.tagName!=="TEXTAREA") return;
+  const k = e.target.closest(".card").id, txt = e.target.value.trim();
+  if (state[k]?.status==="ajuste" && txt !== (state[k].comentario||"")){
+    state[k] = {...state[k], comentario: txt, em: new Date().toISOString()};
+    persist(k);
+  }
+});
+
+/* ---------- novidades ---------- */
+function renderPromos(){
+  const pl = document.getElementById("promoList"); pl.innerHTML = "";
+  Object.entries(promos).sort((a,b)=>(a[1].em||"").localeCompare(b[1].em||"")).forEach(([id,p])=>{
+    const li = document.createElement("li");
+    li.innerHTML = `<div><b></b><span></span></div><button type="button" data-del="${id}">Remover</button>`;
+    li.querySelector("b").textContent = p.titulo;
+    li.querySelector("span").textContent = [p.quando, p.detalhes].filter(Boolean).join(" · ");
+    pl.appendChild(li);
+  });
+}
+document.getElementById("promoForm").addEventListener("submit", e=>{
+  e.preventDefault();
+  const t = document.getElementById("pTitulo"), q = document.getElementById("pQuando"), d = document.getElementById("pDetalhes");
+  if (!t.value.trim()) return;
+  const id = newId(), body = {titulo:t.value.trim(), quando:q.value.trim(), detalhes:d.value.trim(), em:new Date().toISOString()};
+  promos[id] = body; t.value = q.value = d.value = "";
+  saveLocal(); renderPromos(); send("promocoes", id, body);
+});
+document.getElementById("promoList").addEventListener("click", e=>{
+  const b = e.target.closest("button[data-del]"); if (!b) return;
+  delete promos[b.dataset.del]; saveLocal(); renderPromos(); send("promocoes", b.dataset.del, null);
+});
+
+/* ---------- início ---------- */
+paintAll(); renderPromos(); setSync("loading");
+async function load(){
+  if (!SCRIPT_URL){ setSync("config"); return; }
+  try {
+    const r = await fetch(SCRIPT_URL + "?t=" + Date.now());
+    const data = await r.json();
+    const ap = data.aprovacoes || {}, pr = data.promocoes || {};
+    for (const k of Object.keys(state)) if (!pend["aprovacoes/"+k]) delete state[k];
+    for (const [k,x] of Object.entries(ap)) if (!pend["aprovacoes/"+k]) state[k] = {status:x.status||"", comentario:x.comentario||"", em:x.em||""};
+    for (const k of Object.keys(promos)) if (!pend["promocoes/"+k]) delete promos[k];
+    for (const [k,x] of Object.entries(pr)) if (!pend["promocoes/"+k]) promos[k] = {...x};
+    saveLocal(); paintAll(); renderPromos();
+    setSync(Object.keys(pend).length ? "local" : "online");
+    if (Object.keys(pend).length) await flushPending();
+  } catch(e){ setSync("local"); }
+}
+load();
+setInterval(()=>{ if (document.visibilityState === "visible") load(); }, 30000);
+document.addEventListener("visibilitychange", ()=>{ if (document.visibilityState === "visible") load(); });
+</script>
+</body>
+</html>
